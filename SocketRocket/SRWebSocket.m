@@ -16,6 +16,8 @@
 
 #import <SystemConfiguration/SystemConfiguration.h>
 #import "SRWebSocket.h"
+#import "DLLogger.h"
+
 
 #if TARGET_OS_IPHONE
 #define HAS_ICU
@@ -51,6 +53,7 @@
 #error SocketRocket muust be compiled with ARC enabled
 #endif
 
+#define SRFastLog(...) DLLogDebug(@".Network.Comet.Transport", __VA_ARGS__)
 
 typedef enum  {
     SROpCodeTextFrame = 0x1,
@@ -89,7 +92,6 @@ static NSString *const SRWebSocketAppendToSecKeyString = @"258EAFA5-E914-47DA-95
 
 static inline int32_t validate_dispatch_data_partial_string(NSData *data);
 static inline dispatch_queue_t log_queue();
-static inline void SRFastLog(NSString *format, ...);
 
 @interface NSData (SRWebSocket)
 
@@ -483,6 +485,7 @@ static __strong NSData *CRLFCRLF;
     }
     
     self.readyState = SR_OPEN;
+    SRFastLog(@"we are open");
     
     if (!_didFail) {
         [self _readFrameNew];
@@ -1614,21 +1617,6 @@ static inline dispatch_queue_t log_queue() {
     });
     
     return queue;
-}
-
-//#define SR_ENABLE_LOG
-
-static inline void SRFastLog(NSString *format, ...)  {
-#ifdef SR_ENABLE_LOG
-    __block va_list arg_list;
-    va_start (arg_list, format);
-    
-    NSString *formattedString = [[NSString alloc] initWithFormat:format arguments:arg_list];
-    
-    va_end(arg_list);
-    
-    NSLog(@"[SR] %@", formattedString);
-#endif
 }
 
 
