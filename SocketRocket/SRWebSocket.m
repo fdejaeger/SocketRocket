@@ -14,7 +14,7 @@
 //   limitations under the License.
 //
 
-
+#import <SystemConfiguration/SystemConfiguration.h>
 #import "SRWebSocket.h"
 
 #if TARGET_OS_IPHONE
@@ -569,6 +569,9 @@ static __strong NSData *CRLFCRLF;
     
     _outputStream = CFBridgingRelease(writeStream);
     _inputStream = CFBridgingRelease(readStream);
+    CFDictionaryRef proxyDict = CFNetworkCopySystemProxySettings();
+    CFReadStreamSetProperty((CFReadStreamRef)_inputStream, kCFStreamPropertyHTTPProxy, proxyDict);
+    CFRelease(proxyDict);
     
     
     if (_secure) {
